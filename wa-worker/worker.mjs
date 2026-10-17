@@ -1,5 +1,6 @@
 import makeWASocket, { BufferJSON, DisconnectReason, initAuthCreds, proto } from '@whiskeysockets/baileys';
 import pino from 'pino';
+import QRCode from 'qrcode';
 import crypto from 'node:crypto';
 
 const PREFIX = 'tatuador:v1:';
@@ -157,7 +158,7 @@ async function connect() {
     sock.ev.on('messages.upsert', payload => { onMessages(payload).catch(error => console.error('Respostas:', error.message)); });
     sock.ev.on('connection.update', async update => {
       if (update.qr) {
-        await redis('SET', key('wa:qr'), update.qr, 'EX', 120);
+        await redis('SET', key('wa:qr'), await QRCode.toDataURL(update.qr, { width: 240, margin: 2 }), 'EX', 120);
         await status('waiting_qr');
       }
       if (update.connection === 'open') {
