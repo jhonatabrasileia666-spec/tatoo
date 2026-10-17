@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "daemons": {
+    "confirmacao-whatsapp": {
+      "root": "wa-worker/",
+      "entrypoint": "Dockerfile",
+      "instances": {
+        "gru1": 1
+      },
+      "terminationGracePeriodSeconds": 40
+    }
+  }
+}
