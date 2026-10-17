@@ -40,7 +40,7 @@ function appointmentMs(date, time) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date || '')) return NaN;
   if (!['09:00', '10:30', '14:00', '16:30', '18:00'].includes(time)) return NaN;
   const timestamp = Date.parse(date + 'T' + time + ':00-04:00');
-  if (!Number.isFinite(timestamp) || new Date(timestamp - (-4 * 3600000)).toISOString().slice(0, 10) !== date) return NaN;
+  if (!Number.isFinite(timestamp) || new Date(timestamp - 4 * 3600000).toISOString().slice(0, 10) !== date) return NaN;
   return timestamp;
 }
 module.exports = { redis, key, getBooking, setBooking, send, normalizePhone, appointmentMs };
