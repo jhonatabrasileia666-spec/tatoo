@@ -93,7 +93,7 @@ function findFirstDate(){let d=new Date(earliest);while(!isAvailableDay(d))d.set
 chosenDate=dateKey(findFirstDate());viewMonth=new Date(findFirstDate().getFullYear(),findFirstDate().getMonth(),1);
 const longFmt=new Intl.DateTimeFormat('pt-BR',{day:'numeric',month:'long',year:'numeric'}),shortFmt=new Intl.DateTimeFormat('pt-BR',{day:'numeric',month:'long'});
 function getSlots(){return ['09:00','10:30','14:00','16:30','18:00']}
-function occupied(){return false}
+function occupied(date,time){return window.tattooBusySlots?.includes(date+'T'+time)||false}
 function renderCalendar(){const m=viewMonth;$('#calMonth').textContent=new Intl.DateTimeFormat('pt-BR',{month:'long',year:'numeric'}).format(m);const minMonth=new Date(earliest.getFullYear(),earliest.getMonth(),1),maxMonth=new Date(last.getFullYear(),last.getMonth(),1);$('#prevMonth').disabled=m<=minMonth;$('#nextMonth').disabled=m>=maxMonth;let grid=$('#calendarGrid');grid.textContent='';for(let i=0;i<m.getDay();i++){let d=document.createElement('span');d.className='empty';grid.appendChild(d)}let count=new Date(m.getFullYear(),m.getMonth()+1,0).getDate();for(let day=1;day<=count;day++){const d=new Date(m.getFullYear(),m.getMonth(),day);const b=document.createElement('button');b.type='button';b.textContent=day;b.disabled=!isAvailableDay(d);let key=dateKey(d);if(key===chosenDate){b.classList.add('selected');b.setAttribute('aria-current','date')}if(d.getTime()===today.getTime())b.classList.add('today');b.setAttribute('aria-label',longFmt.format(d));b.addEventListener('click',()=>{chosenDate=key;chosenTime=null;renderCalendar();renderSlots()});grid.appendChild(b)}}
 function renderSlots(){let slotList=$('#slotList');slotList.textContent='';let d=parseDate(chosenDate);$('#slotDateLabel').textContent=shortFmt.format(d);let options=getSlots(chosenDate);if(chosenTime&&occupied(chosenDate,chosenTime))chosenTime=null;options.forEach(time=>{let btn=document.createElement('button');btn.className='slot';btn.type='button';btn.textContent=time;btn.disabled=occupied(chosenDate,time);if(btn.disabled)btn.title='Horário reservado nesta demonstração';if(time===chosenTime)btn.classList.add('active');btn.addEventListener('click',()=>{chosenTime=time;renderSlots()});slotList.appendChild(btn)});$('#bookingDateLabel').textContent=longFmt.format(d)+(chosenTime?' · '+chosenTime:' · Selecione um horário')}
 $('#prevMonth').addEventListener('click',()=>{viewMonth=new Date(viewMonth.getFullYear(),viewMonth.getMonth()-1,1);renderCalendar()});$('#nextMonth').addEventListener('click',()=>{viewMonth=new Date(viewMonth.getFullYear(),viewMonth.getMonth()+1,1);renderCalendar()});
@@ -102,10 +102,12 @@ $('#bookingForm').addEventListener('submit',e=>{e.preventDefault();if(!chosenTim
 const data={name,phone,email,notes,date:chosenDate,time:chosenTime,price:$('#estimatePrice').textContent};
 $('#successDetails').textContent='';[['Nome',data.name],['Data selecionada',longFmt.format(parseDate(data.date))],['Horário demonstrativo',data.time],['Estimativa ilustrativa',data.price],['Situação','Prévia — nenhum pedido foi enviado ou armazenado']].forEach(([k,v])=>{let line=document.createElement('div'),strong=document.createElement('strong');strong.textContent=k+': ';line.append(strong,document.createTextNode(v));$('#successDetails').appendChild(line)});$('#bookingForm').reset();state.file=null;$('#fileName').textContent='';chosenTime=null;renderCalendar();renderSlots();openModal('successOverlay')});
 $('#year').textContent=new Date().getFullYear();applyOptions();updateEstimate();renderCalendar();renderSlots();
+window.tattooBookingState=()=>({date:chosenDate,time:chosenTime});window.tattooRefreshSlots=renderSlots;window.tattooOpenModal=openModal;
 })();
 </script>
 <!-- Painel completo conectado à vitrine da mesma página (armazenamento local) -->
 
 
+<script src="/booking-integration.js" defer></script>
 </body>
 </html>
