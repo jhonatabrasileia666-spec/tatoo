@@ -10,6 +10,13 @@ module.exports = async function handler(req, res) {
       return send(res, 200, { occupied: TIMES.filter((_, i) => Boolean(values?.[i])) });
     }
     if (req.method !== 'POST') return send(res, 405, { error: 'Método não permitido' });
+    // Limite básico para proteger a agenda pública contra spam automatizado.
+    const ip = String(req.headers['x-forwarded-for'] || 'unknown').split(',')[0].trim();
+    const fingerprint = createHash('sha256').update(ip).digest('hex').slice(0, 24);
+    const limitKey = key('rate:' + fingerprint);
+    const attempts = await redis('INCR', limitKey);
+    if (attempts === 1) await redis('EXPIRE', limitKey, 1800);
+    if (attempts > 12) return send(res, 429, { error: 'Muitas tentativas. Aguarde 30 minutos.' });
     const b = req.body || {};
     const name = String(b.name || '').trim().slice(0, 90);
     const phone = normalizePhone(b.phone);
