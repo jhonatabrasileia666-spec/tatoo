@@ -1,4 +1,4 @@
-const { randomUUID } = require('node:crypto');
+const { randomUUID, createHash } = require('node:crypto');
 const { redis, key, setBooking, send, normalizePhone, appointmentMs } = require('./_store');
 const TIMES = ['09:00', '10:30', '14:00', '16:30', '18:00'];
 module.exports = async function handler(req, res) {
