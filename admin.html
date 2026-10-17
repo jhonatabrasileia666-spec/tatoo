@@ -38,7 +38,6 @@
     <p><small>Aponte a câmera do WhatsApp para o QR Code uma vez. A conexão é mantida pelo Daemon, com credenciais criptografadas fora do container.</small></p>
   </section>
   <section class="panel"><h2>Solicitações e horários</h2><div id="bookings"><p>Informe a chave administrativa para carregar.</p></div></section>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script>
     const $=s=>document.querySelector(s);
     let token='';
@@ -65,8 +64,7 @@
         $('#wa-status').textContent='Estado: '+(waLabel[status.state]||status.state)+'. Disparos: '+(status.sendEnabled?'ligados':'desligados')+'.';
         const area=$('#qr');area.replaceChildren();area.style.display=qr?'block':'none';
         if(qr){
-          if(window.QRCode)new QRCode(area,{text:qr,width:210,height:210,correctLevel:QRCode.CorrectLevel.L});
-          else area.append(tag('p','Não foi possível carregar o gerador de QR Code.'));
+          const image=document.createElement('img');image.src=qr;image.alt='QR Code de conexão do WhatsApp';image.width=210;image.height=210;area.append(image);
         }
         const container=$('#bookings');container.replaceChildren();
         if(!bookings.length)container.append(tag('p','Nenhuma solicitação recebida.'));
